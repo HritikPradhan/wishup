@@ -8,7 +8,7 @@ const SubscriptionSchema = new mongoose.Schema({
         required: true
     },
     StartDate: { type: String, required: true },
-    ValidTill: { type: Date }
+    ValidTill: { type: String }
 })
 
 module.exports = mongoose.model('Subscribe', SubscriptionSchema)

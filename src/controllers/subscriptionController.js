@@ -33,11 +33,10 @@ const BuySubscription = async function (req, res) {
         if (date < today) {
             return res.status(400).send({ status: "Failure", message: "Please Provide A Valid Date" })
         }
+        let keep = date.setDate(date.getDate() + validity)
         if (Plan !== "FREE") {
-            let keep = date.setDate(date.getDate() + validity)
-            data['ValidTill'] = keep
+            data['ValidTill'] = new Date(keep).toISOString().split('T')[0]
         }
-
         let purchase = await subscriptionModel.create(data)
         await userModel.findOneAndUpdate({ UserName: UserName }, { Balance: remainingbalance })
 
@@ -62,16 +61,14 @@ const getSubscriptionDetail = async function (req, res) {
             if (searchbydate.length > 0) {
                 let today = new Date()
                 for (let i = 0; i < searchbydate.length; i++) {
-                    
-                    searchbydate[i]["Day'sLeft"] = Math.floor((searchbydate[i].ValidTill - today) / (24 * 60 * 60 * 1000))
+
+                    searchbydate[i]["Day'sLeft"] = Math.floor((new Date(searchbydate[i].ValidTill) - today) / (24 * 60 * 60 * 1000))
                 }
                 return res.status(200).send({ status: "Success", Data: searchbydate })
             } else {
                 return res.status(404).send({ status: "Failure", message: "No Subscription Found On the Date" })
             }
-
         }
-
         let subscripts = await subscriptionModel.find({ UserName: body }).select({ _id: 0, __v: 0, UserName: 0 })
         if (subscripts.length == 0) {
             return res.status(404).send({ status: "Failure", message: `Currently user-${body} doesn't Have Any Active Plan` })
