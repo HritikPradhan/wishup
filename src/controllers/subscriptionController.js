@@ -30,11 +30,14 @@ const BuySubscription = async function (req, res) {
         let validity = store.Validity
         let date = new Date(`${StartDate}`)
         let today = new Date()
-        if(date<today){
-            return res.status(400).send({status:"Failure",message:"Please Provide A Valid Date"})
+        if (date < today) {
+            return res.status(400).send({ status: "Failure", message: "Please Provide A Valid Date" })
         }
-        let keep = date.setDate(date.getDate() + validity)
-        data['ValidTill'] = keep
+        if (Plan !== "FREE") {
+            let keep = date.setDate(date.getDate() + validity)
+            data['ValidTill'] = keep
+        }
+
         let purchase = await subscriptionModel.create(data)
         await userModel.findOneAndUpdate({ UserName: UserName }, { Balance: remainingbalance })
 
@@ -55,19 +58,18 @@ const getSubscriptionDetail = async function (req, res) {
         }
         //If Any Body Wants To Find By Date
         if (date) {
-            let searchbydate = await subscriptionModel.find({ UserName: body ,StartDate:date}).lean()
-            if(searchbydate.length>0){
+            let searchbydate = await subscriptionModel.find({ UserName: body, StartDate: date }).lean()
+            if (searchbydate.length > 0) {
                 let today = new Date()
-                let todaydate = today.getDate()
-                for(let i=0;i<searchbydate.length;i++){
-                    searchbydate[i]["Day'sLeft"]= Math.floor((searchbydate[i].ValidTill-today)/(24 * 60 * 60 * 1000))
+                for (let i = 0; i < searchbydate.length; i++) {
                     
+                    searchbydate[i]["Day'sLeft"] = Math.floor((searchbydate[i].ValidTill - today) / (24 * 60 * 60 * 1000))
                 }
-                return res.status(200).send({status:"Success",Data:searchbydate})
-            }else{
-                return res.status(404).send({status:"Failure",message:"No Subscription Found On the Date"})
+                return res.status(200).send({ status: "Success", Data: searchbydate })
+            } else {
+                return res.status(404).send({ status: "Failure", message: "No Subscription Found On the Date" })
             }
-            
+
         }
 
         let subscripts = await subscriptionModel.find({ UserName: body }).select({ _id: 0, __v: 0, UserName: 0 })

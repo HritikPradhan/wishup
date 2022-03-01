@@ -5,10 +5,9 @@ const SubscriptionSchema = new mongoose.Schema({
     UserName: { type: String, required: true },
     Plan: {
         type: String,
-        required: true,
-        enum: ["FREE", "TRIAL", "LITE_1M", "PRO_1M", "LITE_6M", "PRO_6M"]
+        required: true
     },
-    StartDate: { type:String, required: true },
+    StartDate: { type: String, required: true },
     ValidTill: { type: Date }
 })
 
